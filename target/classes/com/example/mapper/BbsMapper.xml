@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.example.mapper.BbsMapper">
+
+	<!-- 공지사항 목록 불러오기 -->
+	<select id="getList" resultType="com.example.domain.BbsVO">
+	select * 
+	from bbs 
+	where STUDYCODE= '0'
+	</select>
+	<!-- 공지사항이기 때문에 스터디 코드 0을 쓰는 것은 이상하지 않음. -->
+	<!-- select * from bbs where bbsid > 0 -->
+	
+	<!-- 개인 게시판 가져오기 -->
+	<select id="getlist_persnal" resultType="com.example.domain.BbsVO">
+	select * 
+	from bbs 
+	where userid = #{userId}
+	<!-- #{userid}--> 
+	<!-- 'guest' -->
+	
+	</select>
+	<!-- 반 게시판 가져오기 -->
+	<select id="getlist_study" resultType="com.example.domain.BbsVO">
+	select * 
+	from bbs 
+	where STUDYCODE= #{studyCode}
+	<!--반 게시판이므로 반에 있는 모든 게시물들을 보이게끔 설정했음.--> 
+	</select>
+	<!-- 글 작성 -->
+	<insert id="insert">
+		insert into
+		Bbs (bbsID, bbsTitle,bbsContent,userid,bbsdate,studycode)
+		values
+		(bbs_seq.nextval, #{bbsTitle}, #{bbsContent}, #{userId}, sysdate,
+		#{studyCode})
+	</insert>
+	<insert id="insertSelectKey">
+		<!-- selectKey는 DB가 실행되기전 별도의 PK값등을 얻기위해 쓴다. -->
+		<selectKey keyProperty="bbsID" order="BEFORE" resultType="long">
+			select bbs_seq.nextval from dual
+		</selectKey>
+		
+		insert into
+		Bbs(bbsID, bbsTitle, bbsContent, userid, bbsdate,studycode)
+		values
+		(#{bbsID}, #{bbsTitle}, #{bbsContent}, #{userId}, sysdate, #{studyCode})
+	</insert>
+	<!-- 글 작성 끝 -->
+	
+
+
+	<!-- 한 개의 글 조회 -->
+	<select id="read" resultType="com.example.domain.BbsVO">
+		select * from Bbs where bbsID =	#{bbsID}
+	</select>
+	
+	<select id="getStudyName" resultType="com.example.domain.BoardVO">
+		select st.studycourse as courseName, reg.studyCode
+		from registration reg 
+        join study st on reg.studyCode = st.studyCode
+        where reg.studyallow = 1 and reg.userid=#{userId}
+	</select>
+	
+	<select id="getAllStudyName" resultType="com.example.domain.BoardVO">
+		select st.studycourse as courseName, reg.studyCode
+		from registration reg 
+        join study st on reg.studyCode = st.studyCode
+        where reg.studyallow = 1
+	</select>
+
+
+
+	<!-- 글 삭제 -->
+	<delete id="delete">
+		delete Bbs where bbsID = #{bbsID}
+	</delete>
+
+	<!-- 글 수정 -->
+	<update id="update">
+		update
+		Bbs
+		set
+		bbsTitle = #{bbsTitle}, bbsContent =#{bbsContent}, bbsID = #{bbsID}, bbsDate =
+		sysdate
+		where
+		bbsID = #{bbsID}
+	</update>
+
+
+
+</mapper>

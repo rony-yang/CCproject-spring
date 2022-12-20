@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.BoardMapper">
+	
+	<select id="getList" resultType="com.example.domain.BoardVO">
+	<![CDATA[
+		select * from tbl_board where bno >0
+	]]>
+	</select>
+	
+<!-- VO가 전달되는데, 이를 #{}같은 형태로 변수를	 -->
+	
+	<insert id="insert"> 
+		insert into
+			tbl_board(bno, title,content,writer)
+		values
+			(seq_board.nextval, #{title}, #{content}, #{writer})
+	</insert>
+<!-- 	이 케이스는 nextval을 해서 시퀀스를 values에 직접 할당하는 식으로 사용. -->
+	
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="bno" order="BEFORE" resultType="Long">
+			select seq_board.nextval from dual
+		</selectKey>
+		insert into
+			tbl_board(bno, title,content,writer)
+		values
+			(#{bno}, #{title}, #{content}, #{writer})
+	</insert>
+<!-- 	이 케이스는 미리 시퀀스를 select문을 통해서 뽑은 후에 values에 할당하는 식으로 사용. -->
+	
+	
+	<select id="read" resultType="com.example.domain.BoardVO">
+		select * from tbl_board where bno = #{bno}
+	</select>
+	
+	<delete id="delete">
+		delete tbl_board where bno= #{bno}
+	</delete>
+	
+	<update id="update">
+		update
+			tbl_board
+		set
+			title= #{title}, content=#{content}, writer= #{writer}, updateDate = sysdate
+		where
+			bno = #{bno}	
+	</update>
+	
+	<select id="getListWithPaging" resultType="com.example.domain.BoardVO">
+	<![CDATA[
+		select
+			bno, title, content, writer, regdate, updatedate
+		from (
+				select
+					/*+INDEX_DESC(tbl_board pk_board */ rownum rn,
+					bno, title, content, writer, regdate, updatedate
+				from
+					tbl_board
+				where
+					rownum <= #{pageNum} * #{amount}	
+		)
+		where
+			rn > (#{pageNum}-1) * #{amount}
+	]]>
+	</select>
+</mapper>

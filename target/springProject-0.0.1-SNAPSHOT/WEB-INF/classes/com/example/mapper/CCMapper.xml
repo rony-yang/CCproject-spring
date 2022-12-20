@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.UserInfoMapper">
+
+<select id="getTotalDate" resultType="AttendanceDTO">
+	<![CDATA[
+	
+	SELECT
+	    COUNT(1) WORKING_DAYS
+	FROM
+	    (
+	        SELECT
+	            TO_CHAR(start_dt + level - 1,'YYYYMMDD') dates,
+	            TO_CHAR(start_dt + level - 1,'D') d
+	        FROM
+	            (
+	                SELECT
+	                    TO_DATE('20221101','YYYYMMDD') AS start_dt,  --시작일자
+	                    TO_DATE('20221231','YYYYMMDD') AS end_dt     --종료일자
+	                FROM dual
+	            )
+	        CONNECT BY
+	            level <= end_dt - start_dt + 1
+	    ) a,	--시작,종료기간 일자를 구한다.
+	    (
+	        SELECT
+	            holiday_dt
+	        FROM holiday
+	        WHERE holiday_dt BETWEEN '20221101' AND '20221231'	--시작,종료일자
+	    ) b	--공휴일테이블에서 기간을 구한다.
+	WHERE
+	    a.dates = b.holiday_dt (+)
+	    AND a.d NOT IN ('1', '7') --1: 일요일 7:토요일
+	    AND b.holiday_dt IS NULL
+	ORDER BY a.dates;
+	
+	]]>
+</select>
+</mapper>

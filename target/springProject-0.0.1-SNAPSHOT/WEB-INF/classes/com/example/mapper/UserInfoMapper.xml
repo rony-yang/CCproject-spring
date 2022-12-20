@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.UserInfoMapper">
+
+	<select id="readID" resultType="com.example.domain.UsersDTO">
+	
+		select * from users WHERE USERID = #{userId} and USERPASSWORD = #{userPassword}
+
+	</select>
+	
+	<select id="checkID" resultType="com.example.domain.UsersDTO">
+	
+		select * from users WHERE USERID = #{userId}
+
+	</select>
+
+	<insert id="insertID">
+	
+		insert into users (userId, userPassword, userName, userAddress, userPhone)
+		values(#{userId}, #{userPassword}, #{userName}, #{userAddress}, #{userPhone})
+	
+	</insert>
+	
+	<update id="updateID">
+	
+		update
+			users
+		set
+			userAddress = #{userAddress},
+			userPhone = #{userPhone}	
+		where
+			userId = #{userId}	
+		
+	</update>
+	
+	<delete id="deleteID">
+	
+		DELETE FROM users WHERE userId = #{userId}
+	
+	</delete>
+
+</mapper>

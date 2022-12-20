@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.CCMapper">
+
+	<select id="getTotalDate" resultType="String">
+	<![CDATA[
+		
+	SELECT
+	    COUNT(1) WORKING_DAYS
+	FROM
+	    (
+	        SELECT
+	            TO_CHAR(start_dt + level - 1,'YYYYMMDD') dates,
+	            TO_CHAR(start_dt + level - 1,'D') d
+	        FROM
+	            (
+	                SELECT
+	                    TO_DATE(#{startDate},'YYYYMMDD') AS start_dt,
+	                    TO_DATE(#{endDate},'YYYYMMDD') AS end_dt
+	                FROM dual
+	            )
+	        CONNECT BY
+	            level <= end_dt - start_dt + 1
+	    ) a,
+	    (
+	        SELECT
+	            holiday_dt
+	        FROM holiday
+	        WHERE holiday_dt BETWEEN #{param1} AND #{param2}
+	    ) b
+	WHERE
+	    a.dates = b.holiday_dt (+)
+	    AND a.d NOT IN ('1', '7')
+	    AND b.holiday_dt IS NULL
+	ORDER BY a.dates
+	]]>
+	</select>
+
+	<select id="getCurrentDate" resultType="String">
+	<![CDATA[
+		
+	SELECT
+	    COUNT(1) WORKING_DAYS
+	FROM
+	    (
+	        SELECT
+	            TO_CHAR(start_dt + level - 1,'YYYYMMDD') dates,
+	            TO_CHAR(start_dt + level - 1,'D') d
+	        FROM
+	            (
+	                SELECT
+	                    TO_DATE(#{param1},'YYYYMMDD') AS start_dt,
+	                    TO_DATE((select to_char(sysdate,'YYYYMMDD') from dual),'YYYYMMDD') AS end_dt
+	                FROM dual
+	            )
+	        CONNECT BY
+	            level <= end_dt - start_dt + 1
+	    ) a,
+	    (
+	        SELECT
+	            holiday_dt
+	        FROM holiday
+	        WHERE holiday_dt BETWEEN #{param1} AND (select to_char(sysdate,'YYYYMMDD') from dual)
+	    ) b
+	WHERE
+	    a.dates = b.holiday_dt (+)
+	    AND a.d NOT IN ('1', '7')
+	    AND b.holiday_dt IS NULL
+	ORDER BY a.dates
+	]]>
+	</select>
+
+	<select id="getStartDate" resultType="java.util.Date">
+
+		select studyStartDate
+		from study
+		where studyCode= #{param1}
+
+	</select>
+
+	<select id="getEndDate" resultType="java.util.Date">
+
+		select studyEndDate
+		from study
+		where studyCode= #{param1}
+
+	</select>
+
+	<select id="getCheckDate" resultType="String">
+		select count(attendanceDate)
+		from attendance
+		WHERE
+		userid=#{userId}
+		and
+		studycode=#{studyCode}
+		and
+		attendanceDate between
+		(select studystartDate from study WHERE studycode=#{studyCode})
+		and
+		(select studyendDate from study WHERE studycode=#{studyCode})
+
+	</select>
+
+	<insert id="insertJoinAttendance">
+
+		insert into attendance (userid, studycode, attendancedate, attendancejoin)
+		values(
+		#{userId},
+		#{studyCode},
+		(select To_char(sysdate, 'YYYYMMDD') from dual),
+		sysdate
+		)
+
+	</insert>
+	
+	
+	<update id="updateJoinAttendance">
+
+		update attendance set attendancejoin = sysdate
+		where
+		userid=#{userId}
+		and
+		studyCode = #{studyCode}
+		and
+		attendancedate = (select To_char(sysdate, 'YYYYMMDD') from dual)
+	</update>
+
+	<update id="updateExitAttendance">
+
+		update attendance set attendanceexit = sysdate
+		where
+		userid=#{userId}
+		and
+		studyCode = #{studyCode}
+		and
+		attendancedate = (select To_char(sysdate, 'YYYYMMDD') from dual)
+		and
+		attendanceExit is null
+	</update>
+
+	<select id="getStudyCode" resultType="String">
+<!-- 		수강 시작 일자를 조회해서, 수강 시작 일자의 내림차순으로 나오게끔 만들었음.(필수는 아님) -->
+		
+		select reg.studyCode
+		from registration reg join study st on reg.studyCode = st.studyCode
+		where reg.userid=#{userId} and reg.studyallow=1
+		order by st.studyStartDate desc
+		
+		
+	</select>
+
+
+	<select id="getCheckList"
+		resultType="com.example.domain.AttendanceVO">
+		
+		select studyCode,
+		to_char(attendanceDate, 'YYYYMMDD') as attendanceDate,
+		attendanceJoin,
+		attendanceExit
+		from attendance
+		WHERE
+		userid=#{userId}
+		and 
+		studycode=#{studyCode}
+		and
+		rownum between #{a} and #{b}	
+		ORDER BY attendanceDate desc
+
+	</select>
+	
+	<select id="getStartTime" resultType="java.sql.Time">
+	
+		select studystartTime from study WHERE studycode=#{studyCode}
+	</select>
+
+	<select id="getEndTime" resultType="java.sql.Time">
+
+		select studyendTime from study WHERE studycode=#{studyCode}
+	</select>
+	
+	<select id="selectTodayCheck" resultType="int">
+	
+		select count(*) from attendance 
+		WHERE userId = #{userId}
+		and 
+		studyCode = #{studyCode} 
+		and 
+		attendancedate = (select To_char(sysdate, 'YYYYMMDD') from dual)
+	</select>
+	
+	<select id="getPagedCheckList"
+		resultType="com.example.domain.AttendanceVO">
+		
+	select studyCode, to_char(attendanceDate, 'YYYYMMDD') as attendanceDate, attendanceJoin, attendanceExit
+		FROM
+			(select rownum AS rm, userid, studyCode, attendanceDate, attendanceJoin, attendanceExit
+			FROM 
+				(select * 
+				 from attendance order by attendanceDate desc)
+			WHERE userid=#{userId} and studycode=#{studyCode}
+			order by attendanceDate desc) tt
+		WHERE tt.rm between #{a} and #{b}
+
+	</select>
+	
+	<select id="getTotalPage" resultType="int">
+	
+	select count(attendanceDate) from attendance WHERE userId=#{userId} and studyCode=#{studyCode}
+	
+	</select>
+
+</mapper>

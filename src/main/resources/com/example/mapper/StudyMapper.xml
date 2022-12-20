@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.StudyMapper">
+
+	<!-- 강의 목록 -->
+	<select id="getList" resultType="com.example.domain.StudyVO">
+		<![CDATA[
+			select * from study where studyCode is not null
+		]]>
+	</select>
+
+	<!-- 강의 조회 <select id="studyView" resultType="com.example.domain.GoodsVO"> 
+		select studyCode, studyCourse, studyContent, studyStartDate, studyEndDate, 
+		studyStartTime, studyEndTime, studyTeacher, studyPrice, studyImage from Study 
+		where studyCode = #{studyCode} </select> -->
+
+
+	<insert id="insert">
+		insert into
+		study (studyCode, studyCourse,
+		studyContent, studyStartDate, studyEndDate,
+		studyStartTime,
+		studyEndTime, studyTeacher, studyPrice, studyImage)
+		values
+		(#{studyCode},
+		#{studyCourse}, #{studyContent}, 
+		#{studyStartDate}, #{studyEndDate},
+		TO_DATE(#{studyStartTime}, 'HH24:MI'), TO_DATE(#{studyEndTime}, 'HH24:MI'), 
+		#{studyTeacher},
+		#{studyPrice}, #{studyImage})
+	</insert>
+
+
+
+
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="bno" order="BEFORE"
+			resultType="long">
+			select studyCode from dual
+		</selectKey>
+
+		insert into
+		study (studyCode, studyCourse, studyContent,
+		studyStartDate, studyEndDate,
+		studyStartTime, studyEndTime,
+		studyTeacher, studyPrice)
+		values
+		(#{studyCode},
+		#{studyCourse},
+		#{studyContent}, #{studyStartDate},
+		#{studyEndDate},
+		#{studyStartTime},
+		#{studyEndTime}, #{studyTeacher},
+		#{studyPrice}, #{studyImage})
+	</insert>
+
+	<!-- <select id="read" resultType="com.example.domain.StudyVO"> select * 
+		from study where studyCode = #{studyCode} </select> -->
+
+	<select id="read" resultType="com.example.domain.StudyVO">
+		SELECT studyCode, studyCourse,
+		studyContent,studyStartDate, studyEndDate,studyImage, studyTeacher,
+		To_char(studyPrice,'fm999,999,999,999') As studyPricedot,
+		To_char(studyStarttime,'HH24:MI') AS studyStarthour,
+		To_char(studyEndtime,'HH24:MI') AS studyEndhour
+		FROM study where
+		studyCode
+		= #{studyCode}
+	</select>
+
+	<delete id="delete">
+		delete study where studyCode = #{studyCode}
+	</delete>
+
+	<update id="update"> update study set #{studyCode},
+		#{studyCourse},
+		#{studyContent}, #{studyStartDate},
+		#{studyEndDate},
+		#{studyStartTime},
+		#{studyEndTime}, #{studyTeacher},
+		#{studyPrice}, #{studyImage} where
+		studyCode = #{studyCode}
+	</update>
+
+
+
+</mapper>
