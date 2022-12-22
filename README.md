@@ -2,7 +2,7 @@
 Spring Framework 팀프로젝트
 
 **1. 메인 사진**
-![project2](https://user-images.githubusercontent.com/116271236/209051872-21f83380-7329-4ce1-8756-59d312137808.png)
+![project2](https://user-images.githubusercontent.com/116271236/209054712-f8e5d84b-deea-4c33-8b64-96a76f905d78.png)
 
 **2. URL 주소** : 추후 예정
 
