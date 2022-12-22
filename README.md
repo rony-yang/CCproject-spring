@@ -38,22 +38,22 @@ Spring Framework 팀프로젝트
 
 ```java
 <!-- 수강신청 -->
-	<insert id="Course_regist">
+<insert id="Course_regist">
 	
-	insert into registration(userId, studyCode, studyAllow)
-	values(#{userId}, #{studyCode}, 2)
+insert into registration(userId, studyCode, studyAllow)
+values(#{userId}, #{studyCode}, 2)
 
 
 
 <!-- 수강신청 목록 -->
-	<select id="Course_list" resultType="com.example.domain.RegistrationConfirmDTO">
+<select id="Course_list" resultType="com.example.domain.RegistrationConfirmDTO">
 	
-	select reg.userId, reg.studyCode, stdy.studyCourse, stdy.studyStartDate, stdy.studyPrice, aw.comments status
-	from registration reg inner join allow aw 
-        on reg.studyallow=aw.studyallow
-        inner join study stdy on reg.studyCode = stdy.studyCode
-        where userid = #{userId}
-  ```
+select reg.userId, reg.studyCode, stdy.studyCourse, stdy.studyStartDate, stdy.studyPrice, aw.comments status
+from registration reg inner join allow aw 
+on reg.studyallow=aw.studyallow
+inner join study stdy on reg.studyCode = stdy.studyCode
+where userid = #{userId}
+ ```
 
 
 **9. 개선사항** : 디자인 개선 및 자잘한 예외사항 추가 예정입니다.
