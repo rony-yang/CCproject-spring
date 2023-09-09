@@ -8,7 +8,7 @@ Spring Framework 팀프로젝트
 
 **3. URL 주소** : 추후 예정
 
-**4. 작업기간** : 2022. 10. 26 ~ 11. 11
+**4. 작업기간** : 22년 10월 ~ 22년 11월
 
 **5. 작업인원** : 4명
 
@@ -16,12 +16,18 @@ Spring Framework 팀프로젝트
 
 **6. 사용 기술**
 
-- 언어 : Java, JSP, HTML, CSS, JS, ajax, Spring Framework
+- 언어 : java, javaScript
 
-- 프로그램 : eclipse, sql developer
-
-- 서버 : Tomcat, Oracle
-
+- 프레임워크 : Spring Framework
+  
+- 웹 개발 : JSP, HTML, CSS(bootstrap), ajax
+  
+- 서버 : Tomcat
+  
+- DB : Oracle
+  
+- IDE : eclipse, sql developer, Github
+  
 **7. 주요기능**
 
 - 회원가입 및 로그인 기능
